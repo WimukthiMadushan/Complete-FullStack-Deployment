@@ -1,33 +1,44 @@
 name: CICD With Docker
-
 on:
   push:
     branches: [ "main" ]
-jobs:
 
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
       - name: Build the Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/simplemicroservice:latest .
+
       - name: Push to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/simplemicroservice:latest
+
   deploy:
     runs-on: self-hosted
     needs: build
     steps:
       - name: Pull the latest Docker image
-        run: sudo docker pull wimukthibandara/simplemicroservice:latest
+        run: sudo docker pull ${{ secrets.DOCKER_USERNAME }}/simplemicroservice:latest
+
       - name: Stop and remove old Docker container (if running)
         run: |
-          sudo docker stop microservice-container || true
-          sudo docker rm microservice-container || true
+          sudo docker stop simplemicroservice-container || true
+          sudo docker rm simplemicroservice-container || true
+
+      - name: Remove unused Docker images
+        run: sudo docker image prune -f
+
       - name: Run new Docker container
-        run: sudo docker run -d -p 8080:8080 --name simplemicroservice-container wimukthibandara/simplemicroservice:latest
+        run: |
+          sudo docker run -d -p 8080:8080 --name simplemicroservice-container \
+          --restart unless-stopped \
+          ${{ secrets.DOCKER_USERNAME }}/simplemicroservice:latest
