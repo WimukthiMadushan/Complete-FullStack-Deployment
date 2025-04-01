@@ -27,7 +27,7 @@ jobs:
         run: sudo docker pull wimukthibandara/simplemicroservice:latest
       - name: Stop and remove old Docker container (if running)
         run: |
-          sudo docker stop microservice-container || true
-          sudo docker rm microservice-container || true
+          sudo docker stop simplemicroservice-container || true
+          sudo docker rm simplemicroservice-container || true
       - name: Run new Docker container
         run: sudo docker run -d -p 8080:8080 --name simplemicroservice-container wimukthibandara/simplemicroservice:latest
