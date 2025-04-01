@@ -1,5 +1,0 @@
-com\emailservice\backend\Models\Child.class
-com\emailservice\backend\Repository\ChildRepository.class
-com\emailservice\backend\Controllers\HelloWorld.class
-com\emailservice\backend\Service\ChildService.class
-com\emailservice\backend\BackendApplication.class
